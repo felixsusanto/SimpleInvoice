@@ -1,96 +1,8 @@
 import React from "react";
-import moment from "moment";
 import _ from "lodash";
-import numeral from "numeral";
-import styled from "styled-components";
 import stub from "./stubs";
-
-
-const TemplateWrapper = styled.div`
-  display: block;
-  .issuer {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-  }
-  .amount-due {
-    font-size: 3rem;
-    font-weight: 300;
-  }
-  .numeral {
-    text-align: right;
-  }
-  .center {
-    text-align: center;
-  }
-  .right {
-    text-align: right;
-  }
-  .desc {
-    display: block;
-    max-width: 450px;
-  }
-  .emphasis,
-  .lead {
-    color: ${props => props.theme.blue};
-    padding-bottom: 0.2rem;
-    margin: 0.2rem 0;
-    border-bottom: 1px solid #ddd;
-  }
-  .line-emphasis {
-    border-top: 3px solid ${props => props.theme.blue};
-  }
-  .no-border {
-    border: none;
-  }
-  table {
-    margin-top: 20px;
-    /* table-layout: fixed; */
-    thead > tr > th {
-      border-top: 3px solid ${props => props.theme.blue};
-      color: ${props => props.theme.blue};
-    }
-  }
-`;
-
-const dateParser = (str) => {
-  const date = new Date(str);
-  return moment(date).format("DD MMM YYYY");
-}
-const formatter = (number) => numeral(number).format("0,0.00");
-const sumLineTotal = (arrayDetails, paid, tax, discount) => {
-  tax = tax || 0;
-  discount = discount || 0;
-  const subtotal =  arrayDetails.map(obj => obj.rate * obj.qty).reduce((a,b) => a+b, 0);
-  const formatted = formatter(subtotal);
-  const rawTax = ((1-discount)*subtotal) * tax;
-  const rawDiscount = subtotal * discount;
-  const rawAmountDue = subtotal - paid + rawTax - rawDiscount;
-  return {
-    details: arrayDetails.map(obj => {
-      const totalDetail = obj.rate * obj.qty;
-      return {
-        raw: totalDetail,
-        formatted: formatter(totalDetail)
-      };
-    }),
-    subtotal: {
-      raw: subtotal,
-      formatted
-    },
-    discount: {
-      raw: rawDiscount,
-      formatted: formatter(rawDiscount)
-    },
-    tax: {
-      raw: rawTax,
-      formatted: formatter(rawTax)
-    },
-    amountDue: {
-      raw: rawAmountDue,
-      formatted: formatter(rawAmountDue)
-    }
-  };
-};
+import { TemplateWrapper } from "./styles";
+import { dateParser, formatter, sumLineTotal, percentFormatter } from "./utils";
 
 const Template = props => {
   const { data, defaultCurrency, defaultCurrencySymbol } = props;
@@ -107,6 +19,7 @@ const Template = props => {
   const calculation = sumLineTotal(invoice.details, invoice.amountPaid, invoice.tax, invoice.discount);
   return (
     <TemplateWrapper>
+      {props.children}
       <div className="row justify-content-end issuer">
         <div className="col-12 col-lg-3">
           {issuer.contactPerson} <br />
@@ -187,12 +100,12 @@ const Template = props => {
                   Sub Total <br />
                   {invoice.discount && (
                     <React.Fragment>
-                      Discount ({numeral(invoice.discount).format("0%")})<br />
+                      Discount ({percentFormatter(invoice.discount)})<br />
                     </React.Fragment>
                   )}
                   {invoice.tax && (
                     <React.Fragment>
-                      Tax ({numeral(invoice.tax).format("0%")})<br />
+                      Tax ({percentFormatter(invoice.tax)})<br />
                     </React.Fragment>
                   )}
                   Amount Paid
