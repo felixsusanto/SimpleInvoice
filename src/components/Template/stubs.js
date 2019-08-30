@@ -23,6 +23,8 @@ const description = index => {
 const today = moment().toString();
 const weekLater = moment().add(7, 'days').toString();
 
+/* data has to be immutable! */
+
 export default {
   client: {
     contactPerson: "Client Contact",
@@ -30,14 +32,12 @@ export default {
     country: "Country"
   },
   dates: {
-    issued: today,
-    due: weekLater
+    issued: today, //editable smart default
+    due: weekLater //editable smart default
   },
   invoice: {
-    id: "0000002",
-    amountPaid: 300,
-    discount: 0.05,
-    tax: 0.05,
+    id: "0000002", // auto increment
+    amountPaid: 560,
     details: [...Array(6).keys()].map(idx => ({
       title: `Project Deliverables ${idx + 1}`,
       description: description(idx),
@@ -45,7 +45,7 @@ export default {
       qty: 3 + idx
     }))
   },
-  issuer: {
+  issuer: { // global config
     contactPerson: "Issuer Name Here",
     contactNumber: "1234 5678",
     address: "Issuer Business Address",

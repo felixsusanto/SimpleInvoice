@@ -212,7 +212,7 @@ const Template = props => {
                       <br />
                     </React.Fragment>
                   )}
-                  -{formatter(invoice.amountPaid)}
+                  {!!invoice.amountPaid && "-"}{formatter(invoice.amountPaid)}
                 </td>
               </tr>
               <tr className="line-emphasis">
