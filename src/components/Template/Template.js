@@ -25,16 +25,26 @@ const TemplateWrapper = styled.div`
   .right {
     text-align: right;
   }
+  .desc {
+    display: block;
+    max-width: 450px;
+  }
   .emphasis,
   .lead {
     color: ${props => props.theme.blue};
+    padding-bottom: 0.2rem;
+    margin: 0.2rem 0;
+    border-bottom: 1px solid #ddd;
   }
   .line-emphasis {
     border-top: 3px solid ${props => props.theme.blue};
   }
+  .no-border {
+    border: none;
+  }
   table {
     margin-top: 20px;
-    table-layout: fixed;
+    /* table-layout: fixed; */
     thead > tr > th {
       border-top: 3px solid ${props => props.theme.blue};
       color: ${props => props.theme.blue};
@@ -44,12 +54,17 @@ const TemplateWrapper = styled.div`
 
 const dateParser = (str) => {
   const date = new Date(str);
-  return moment(date).format("DD MMMM YYYY");
+  return moment(date).format("DD MMM YYYY");
 }
 const formatter = (number) => numeral(number).format("0,0.00");
-const sumLineTotal = (arrayDetails, paid) => {
-  const total =  arrayDetails.map(obj => obj.rate * obj.qty).reduce((a,b) => a+b, 0);
-  const formatted = formatter(total);
+const sumLineTotal = (arrayDetails, paid, tax, discount) => {
+  tax = tax || 0;
+  discount = discount || 0;
+  const subtotal =  arrayDetails.map(obj => obj.rate * obj.qty).reduce((a,b) => a+b, 0);
+  const formatted = formatter(subtotal);
+  const rawTax = ((1-discount)*subtotal) * tax;
+  const rawDiscount = subtotal * discount;
+  const rawAmountDue = subtotal - paid + rawTax - rawDiscount;
   return {
     details: arrayDetails.map(obj => {
       const totalDetail = obj.rate * obj.qty;
@@ -59,12 +74,20 @@ const sumLineTotal = (arrayDetails, paid) => {
       };
     }),
     subtotal: {
-      raw: total,
+      raw: subtotal,
       formatted
     },
+    discount: {
+      raw: rawDiscount,
+      formatted: formatter(rawDiscount)
+    },
+    tax: {
+      raw: rawTax,
+      formatted: formatter(rawTax)
+    },
     amountDue: {
-      raw: total - paid,
-      formatted: formatter(total - paid)
+      raw: rawAmountDue,
+      formatted: formatter(rawAmountDue)
     }
   };
 };
@@ -81,7 +104,7 @@ const Template = props => {
   const { billedCurrency, billedCurrencySymbol } = client;
   const currency = billedCurrency || defaultCurrency;
   const currencySymbol = billedCurrencySymbol || defaultCurrencySymbol;
-  const calculation = sumLineTotal(invoice.details, invoice.amountPaid);
+  const calculation = sumLineTotal(invoice.details, invoice.amountPaid, invoice.tax, invoice.discount);
   return (
     <TemplateWrapper>
       <div className="row justify-content-end issuer">
@@ -114,7 +137,8 @@ const Template = props => {
         <div className="col-6 col-lg-3 right">
           <div className="lead">Amount Due ({currency})</div>
           <div className="amount-due">
-            {currencySymbol}{calculation.amountDue.formatted}
+            {currencySymbol}
+            {calculation.amountDue.formatted}
           </div>
         </div>
       </div>
@@ -134,12 +158,19 @@ const Template = props => {
                 <tr key={index}>
                   <td>
                     <strong>{obj.title}</strong> <br />
-                    <small>{obj.description}</small>
+                    <small
+                      className="desc"
+                      dangerouslySetInnerHTML={{ __html: obj.description }}
+                    />
                   </td>
-                  <td className="numeral">{currencySymbol}{formatter(obj.rate)}</td>
+                  <td className="numeral">
+                    {currencySymbol}
+                    {formatter(obj.rate)}
+                  </td>
                   <td className="center">{obj.qty}</td>
                   <td className="numeral">
-                    {currencySymbol}{calculation.details[index].formatted}
+                    {currencySymbol}
+                    {calculation.details[index].formatted}
                   </td>
                 </tr>
               );
@@ -153,19 +184,44 @@ const Template = props => {
             <tbody>
               <tr>
                 <th className="right">
-                  Total <br />
+                  Sub Total <br />
+                  {invoice.discount && (
+                    <React.Fragment>
+                      Discount ({numeral(invoice.discount).format("0%")})<br />
+                    </React.Fragment>
+                  )}
+                  {invoice.tax && (
+                    <React.Fragment>
+                      Tax ({numeral(invoice.tax).format("0%")})<br />
+                    </React.Fragment>
+                  )}
                   Amount Paid
                 </th>
                 <td className="right">
                   {calculation.subtotal.formatted}
                   <br />
-                  {formatter(invoice.amountPaid)}
+                  {invoice.discount && (
+                    <React.Fragment>
+                      -{calculation.discount.formatted}
+                      <br />
+                    </React.Fragment>
+                  )}
+                  {invoice.tax && (
+                    <React.Fragment>
+                      {calculation.tax.formatted}
+                      <br />
+                    </React.Fragment>
+                  )}
+                  -{formatter(invoice.amountPaid)}
                 </td>
               </tr>
               <tr className="line-emphasis">
-                <th className="right emphasis">Amount Due ({currency})</th>
+                <th className="right emphasis no-border">
+                  Amount Due ({currency})
+                </th>
                 <td className="right">
-                  {currencySymbol}{calculation.amountDue.formatted}
+                  {currencySymbol}
+                  {calculation.amountDue.formatted}
                 </td>
               </tr>
             </tbody>

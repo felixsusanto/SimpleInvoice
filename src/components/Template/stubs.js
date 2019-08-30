@@ -1,3 +1,28 @@
+import moment from "moment";
+
+const description = index => {
+  const longText =
+    "Potential long description: Lorem ipsum dolor sit amet consectetur adipisicing elit. Potential long description: Lorem ipsum dolor sit amet consectetur adipisicing elit.";
+  const htmlString = `
+    HTML String here, some breakdown and description!
+    <ul>
+      <li>Description 1</li>
+      <li>Description 2</li>
+    </ul>
+  `;
+  if(index === 0) {
+    return longText;
+  }
+  if(index === 1) {
+    return htmlString;
+  }
+  if (index < 4) {
+    return "Optional Description";
+  }
+};
+const today = moment().toString();
+const weekLater = moment().add(7, 'days').toString();
+
 export default {
   client: {
     contactPerson: "Client Contact",
@@ -5,21 +30,18 @@ export default {
     country: "Country"
   },
   dates: {
-    issued: new Date().toString(),
-    due: new Date().toString()
+    issued: today,
+    due: weekLater
   },
   invoice: {
     id: "0000002",
-    amountPaid: 30,
+    amountPaid: 300,
+    discount: 0.05,
+    tax: 0.05,
     details: [...Array(6).keys()].map(idx => ({
       title: `Project Deliverables ${idx + 1}`,
-      description:
-        idx === 0
-          ? "Potential long description: Lorem ipsum dolor sit amet consectetur adipisicing elit."
-          : idx > 2
-          ? ""
-          : "Optional Description",
-      rate: 100 + idx,
+      description: description(idx),
+      rate: 100.3 - idx,
       qty: 3 + idx
     }))
   },
