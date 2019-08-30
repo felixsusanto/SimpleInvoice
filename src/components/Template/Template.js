@@ -9,7 +9,8 @@ import stub from "./stubs";
 const TemplateWrapper = styled.div`
   display: block;
   .issuer {
-    margin: 2rem 0;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
   }
   .amount-due {
     font-size: 3rem;
@@ -69,7 +70,7 @@ const sumLineTotal = (arrayDetails, paid) => {
 };
 
 const Template = props => {
-  const { data, currency } = props;
+  const { data, defaultCurrency, defaultCurrencySymbol } = props;
   if(_.isEmpty(data)) return false;
   const {
     client,
@@ -77,71 +78,75 @@ const Template = props => {
     invoice,
     issuer
   } = data;
+  const { billedCurrency, billedCurrencySymbol } = client;
+  const currency = billedCurrency || defaultCurrency;
+  const currencySymbol = billedCurrencySymbol || defaultCurrencySymbol;
   const calculation = sumLineTotal(invoice.details, invoice.amountPaid);
   return (
     <TemplateWrapper>
       <div className="row justify-content-end issuer">
-        <div className="col-3">
+        <div className="col-12 col-lg-3">
           {issuer.contactPerson} <br />
           {issuer.contactNumber}
         </div>
-        <div className="col-3">
+        <div className="col-12 col-lg-3">
           {issuer.address} <br />
           {issuer.country}
         </div>
       </div>
       <div className="row">
-        <div className="col">
+        <div className="col-6 col-lg-3">
           <div className="lead">Billed to</div>
           {client.contactPerson} <br />
           {client.companyName} <br />
           {client.country}
         </div>
-        <div className="col">
+        <div className="col-6 col-lg-3">
           <div className="lead">Date of Issue</div>
           {dateParser(dates.issued)}
           <div className="lead">Due Date</div>
           {dateParser(dates.due)}
         </div>
-        <div className="col">
+        <div className="col-6 col-lg-3">
           <div className="lead">Invoice Number</div>
           {invoice.id}
         </div>
-        <div className="col right">
-          <div className="lead">Amount Due (SGD)</div>
+        <div className="col-6 col-lg-3 right">
+          <div className="lead">Amount Due ({currency})</div>
           <div className="amount-due">
-            ${calculation.amountDue.formatted}
+            {currencySymbol}{calculation.amountDue.formatted}
           </div>
         </div>
       </div>
-
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Description</th>
-            <th className="numeral">Rate</th>
-            <th className="center">Qty</th>
-            <th className="numeral">Line Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {invoice.details.map((obj, index) => {
-            return (
-              <tr key={index}>
-                <td>
-                  <strong>{obj.title}</strong> <br />
-                  <small>{obj.description}</small>
-                </td>
-                <td className="numeral">${formatter(obj.rate)}</td>
-                <td className="center">{obj.qty}</td>
-                <td className="numeral">
-                  ${calculation.details[index].formatted}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="table-responsive">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th className="numeral">Rate</th>
+              <th className="center">Qty</th>
+              <th className="numeral">Line Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {invoice.details.map((obj, index) => {
+              return (
+                <tr key={index}>
+                  <td>
+                    <strong>{obj.title}</strong> <br />
+                    <small>{obj.description}</small>
+                  </td>
+                  <td className="numeral">{currencySymbol}{formatter(obj.rate)}</td>
+                  <td className="center">{obj.qty}</td>
+                  <td className="numeral">
+                    {currencySymbol}{calculation.details[index].formatted}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
       <div className="row justify-content-end">
         <div className="col-6">
           <table className="table">
@@ -160,7 +165,7 @@ const Template = props => {
               <tr className="line-emphasis">
                 <th className="right emphasis">Amount Due ({currency})</th>
                 <td className="right">
-                  ${calculation.amountDue.formatted}
+                  {currencySymbol}{calculation.amountDue.formatted}
                 </td>
               </tr>
             </tbody>
@@ -172,7 +177,8 @@ const Template = props => {
 };
 
 Template.defaultProps = {
-  currency: "SGD",
+  defaultCurrency: "SGD",
+  defaultCurrencySymbol: "$",
   data: stub
 };
 
