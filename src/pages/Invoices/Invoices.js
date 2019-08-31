@@ -34,7 +34,7 @@ const Invoices = () => {
         </h3>
         <hr />
         <p>List of your invoices goes here...</p>
-        <ObjectTable data={SampleData} />
+        <ObjectTable data={SampleData} emptyComponent={"<EmptyComponent/>"}/>
       </div>
     </Wrapper>
   );

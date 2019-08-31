@@ -7,14 +7,18 @@ const breakdownObjToVal = (obj, header) => {
 
 const ObjectTable = props => {
   const { data } = props;
-  if(_.isEmpty(data)) return false;
+  if(_.isEmpty(data)) {
+    return props.emptyComponent || false;
+  }
   const header = Object.keys(data[0]);
   return (
     <table className="table">
       <thead>
         <tr>
-          {header.map((str, idx) => <th key={idx}>{str}</th>)}
-          {props.header.additionalCols}
+          {header.map((str, idx) => (
+            <th key={idx}>{str}</th>
+          ))}
+          {props.additionalCols.header}
         </tr>
       </thead>
       <tbody>
@@ -24,7 +28,7 @@ const ObjectTable = props => {
               {breakdownObjToVal(obj, header).map((val, idx) => (
                 <td key={idx}>{val}</td>
               ))}
-              {props.body.additionalCols}
+              {props.additionalCols.body(idx)}
             </tr>
           );
         })}
@@ -34,28 +38,13 @@ const ObjectTable = props => {
 };
 
 ObjectTable.defaultProps = {
-  header: {
-    additionalCols: <th>Call to Action</th>
+  
+  additionalCols: {
+    header: false,
+    body: () => {}
   },
-  body: {
-    additionalCols: (
-      <td>
-        <div className="btn btn-primary btn-sm">
-          <i className="fal fa-pencil" />
-        </div>{" "}
-        <div className="btn btn-danger btn-sm">
-          <i className="fal fa-trash" />
-        </div>
-      </td>
-    )
-  },
-  data: [
-    ...Array(10).keys()
-  ].map(idx => ({
-    contactPerson: `Client Contact ${idx + 1}`,
-    companyName: "Client Business Name",
-    country: "Country"
-  }))
+  data: []
+  
 };
 
 export default ObjectTable;

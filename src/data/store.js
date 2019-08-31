@@ -1,24 +1,9 @@
-import { applyMiddleware, createStore, combineReducers, compose } from "redux";
+import { applyMiddleware, createStore, compose } from "redux";
 import { createBrowserHistory } from "history";
-import { connectRouter, routerMiddleware } from "connected-react-router";
+import { routerMiddleware } from "connected-react-router";
+import createRootReducer from "./reducers";
 
 export const history = createBrowserHistory();
-
-const counterReducer = (state = 0, action) => {
-  switch (action.type) {
-    case "INCREMENT":
-      return state + 1;
-    case "DECREMENT":
-      return state - 1;
-    default:
-      return state;
-  }
-};
-
-const createRootReducer = historyArg => combineReducers({
-  counterReducer,
-  router: connectRouter(historyArg)
-});
 
 const configureStore = (preloadedState) => {
   const composeEnhancer =
