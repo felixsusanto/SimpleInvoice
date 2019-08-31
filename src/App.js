@@ -3,6 +3,7 @@ import React from 'react';
 import { ThemeProvider } from "styled-components";
 import { ConnectedRouter } from "connected-react-router";
 import Routes from './routes';
+import Dashboard from "pages/Dashboard/Dashboard";
 
 const theme = {
   blue: "#0b5394"
@@ -13,7 +14,9 @@ const App = ({history}) => {
   return (
     <ThemeProvider theme={theme}>
       <ConnectedRouter history={history}>
-        <Routes />
+        <Dashboard>
+          <Routes />
+        </Dashboard>
       </ConnectedRouter>
     </ThemeProvider>
   );
