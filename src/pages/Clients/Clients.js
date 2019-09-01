@@ -4,7 +4,7 @@ import ObjectTable from "components/ObjectTable/ObjectTable";
 import Modal from "../../components/Modal/Modal";
 import ClientForm from "./components/ClientForm";
 import { connect } from "react-redux";
-import { actionAddClient } from "data/clients/ducks";
+import { actionAddClient, actionRemoveClient, actionUpdateClient } from "data/clients/ducks";
 
 const ClientsWrapper = styled.div`
   padding: 20px 0;
@@ -34,7 +34,7 @@ const ConnectedTable = connect(
 class Clients extends React.PureComponent {
   state = {
     modalOpen: false,
-    initValues: null
+    updateIndex: -1
   };
 
   addCol = {
@@ -46,7 +46,7 @@ class Clients extends React.PureComponent {
             className="btn btn-primary btn-sm"
             onClick={() => {
               this.setState({
-                initValues: {...this.props.clients[idx]},
+                updateIndex: idx,
                 modalOpen: true
               });
             }}
@@ -55,7 +55,7 @@ class Clients extends React.PureComponent {
           </div>{" "}
           <div
             className="btn btn-danger btn-sm"
-            onClick={() => console.log(idx)}
+            onClick={() => this.props.actionRemoveClient(idx)}
           >
             <i className="fal fa-trash" />
           </div>
@@ -80,20 +80,36 @@ class Clients extends React.PureComponent {
             </h3>
             <hr />
             <p>List of your client goes here...</p>
-            <ConnectedTable emptyComponent={<EmptyComponent />} {...this.addCol}/>
+            <ConnectedTable
+              emptyComponent={<EmptyComponent />}
+              {...this.addCol}
+            />
           </div>
         </ClientsWrapper>
         {this.state.modalOpen && (
           <Modal
             title="Add Client"
-            onCloseModal={() => this.setState({ modalOpen: false })}
+            onCloseModal={() =>
+              this.setState({ modalOpen: false, updateIndex: -1 })
+            }
           >
+            <small className="text-danger">
+              <i>All Fields are mandatory</i>
+            </small>
             <ClientForm
-              onSubmit={values => {
-                this.props.actionAddClient(values);
-                this.setState({ modalOpen: false });
+              onSubmit={(values, _, { isUpdating }) => {
+                if (isUpdating !== -1) {
+                  this.props.actionUpdateClient({
+                    index: isUpdating,
+                    formValues: values
+                  });
+                } else {
+                  this.props.actionAddClient(values);
+                }
+                this.setState({ modalOpen: false, updateIndex: -1 });
               }}
-              initialValues={this.state.initValues}
+              isUpdating={this.state.updateIndex}
+              initialValues={this.props.clients[this.state.updateIndex]}
             />
           </Modal>
         )}
@@ -103,10 +119,12 @@ class Clients extends React.PureComponent {
 };
 
 export default connect(
-  (state) => ({
+  state => ({
     clients: state.clients
   }),
   {
-    actionAddClient
+    actionAddClient,
+    actionRemoveClient,
+    actionUpdateClient
   }
 )(Clients);

@@ -3,6 +3,7 @@ import { Field, reduxForm } from "redux-form";
 const required = value =>
   value || typeof value === "number" ? undefined : "Required";
 const ClientForm = props => {
+  const {isUpdating} = props;
   return (
     <form onSubmit={props.handleSubmit}>
       <div className="form-group">
@@ -39,12 +40,11 @@ const ClientForm = props => {
           validate={[required]}
         />
       </div>
-      <button
-        type="submit"
-        className="float-right btn btn-primary"
-      >
-        Add Client
-      </button>
+      <div className="float-right">
+        <button type="submit" className="btn btn-primary">
+          {isUpdating === -1 ? "Add Client" : "Update Client"}
+        </button>
+      </div>
     </form>
   );
 }

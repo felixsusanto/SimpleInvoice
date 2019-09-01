@@ -1,86 +1,37 @@
 import React from "react";
 import styled from "styled-components";
+import { connect } from "react-redux";
+import SettingsForm from "./components/SettingsForm";
+import { actionUpdateDetails } from "data/global/ducks";
 
 const Wrapper = styled.div`
   padding: 20px 0;
 `;
 
-const Settings = () => {
+const Settings = props => {
   return (
     <Wrapper>
       <div className="container">
         <h3>Settings</h3>
         <hr />
-        <div className="row">
-          <div className="col-6">
-            <p className="lead">Your details</p>
-            <form>
-              <div className="form-group">
-                <label>Contact Person / Business Name</label>
-                <input
-                  type="email"
-                  className="form-control"
-                  aria-describedby="emailHelp"
-                  placeholder="Enter email"
-                />
-              </div>
-              <div className="form-group">
-                <label>Contact Number</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Password"
-                />
-              </div>
-              <div className="form-group">
-                <label>Address</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Password"
-                />
-              </div>
-              <div className="form-group">
-                <label>Country</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Password"
-                />
-              </div>
-              <div className="form-group form-check">
-                <input type="checkbox" className="form-check-input" />
-                <label className="form-check-label">Check me out</label>
-              </div>
-              <button type="submit" className="btn btn-primary">
-                Update
-              </button>
-            </form>
-          </div>
-          <div className="col-6">
-            <p className="lead">Currency Default</p>
-            <div className="form-group">
-              <label>Currency</label>
-              <input
-                type="email"
-                className="form-control"
-                aria-describedby="emailHelp"
-                placeholder="Enter email"
-              />
-            </div>
-            <div className="form-group">
-              <label>Currency Symbol</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Password"
-              />
-            </div>
-          </div>
-        </div>
+        <SettingsForm
+          initialValues={{
+            details: props.details,
+            currencyDefault: props.currencyDefault
+          }}
+          onSubmit={formValues => {
+            props.actionUpdateDetails(formValues);
+          }}
+        />
       </div>
     </Wrapper>
   );
 };
 
-export default Settings;
+export default connect(
+  state => ({
+    details: state.global.details,
+    currencyDefault: state.global.currencyDefault
+  }),
+  { actionUpdateDetails }
+)(Settings);
