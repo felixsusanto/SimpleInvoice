@@ -18,8 +18,10 @@ const ModalWrapper = styled.div`
 `;
 
 const Modal = props => {
-  const { modalXl } = props;
-  const modalClass = modalXl ? "modal-xl" : "";
+  const { modalXl, modalScrollable } = props;
+  let modalClass = "";
+  if(modalXl) modalClass = "modal-xl";
+  if(modalScrollable) modalClass += " modal-dialog-scrollable";
   return (
     <ModalWrapper>
       <div className="shroud" />

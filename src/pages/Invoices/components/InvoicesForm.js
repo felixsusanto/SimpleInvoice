@@ -1,10 +1,10 @@
 import React from "react";
-import { Field, reduxForm } from "redux-form";
+import { Field, FieldArray, reduxForm } from "redux-form";
 import { connect } from "react-redux";
 import { compose } from "redux";
-import { required } from "utilities/utils";
-import moment from "moment";
+import { required, formatNumberToString } from "utilities/utils";
 import { ConnectedAutoIdInvoice } from "components/AutoIdSerial";
+import _ from "lodash";
 
 const CustomSelect = props => {
   const { input, placeholder, options } = props;
@@ -27,14 +27,98 @@ const CustomSelect = props => {
 };
 
 const Datepicker = props => {
-  const { input, defaultValue } = props;
+  const { input } = props;
   return (
     <input
       className="form-control"
       type="date"
-      defaultValue={defaultValue}
+      value={input.value}
       onChange={input.onChange}
     />
+  );
+};
+
+const renderDetails = props => {
+  const { fields } = props;
+  if (_.isEmpty(fields)) fields.push({});
+  return (
+    <ul className="list-unstyled">
+      <li>
+        <div className="btn btn-primary" onClick={() => fields.push({})}>
+          Add Item
+        </div>
+      </li>
+      {fields.map((item, index) => {
+        return (
+          <li key={index}>
+            <hr />
+            <div className="form-row">
+              <div className="col">
+                <div className="form-group">
+                  <label>Title</label>
+                  <Field
+                    component="input"
+                    name={`${item}.title`}
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter Title"
+                    validate={[required]}
+                  />
+                </div>
+              </div>
+              <div className="col">
+                <div className="form-group">
+                  <label>Rate</label>
+                  <Field
+                    component="input"
+                    name={`${item}.rate`}
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter Rate"
+                    validate={[required]}
+                    format={formatNumberToString}
+                    parse={Number}
+                  />
+                </div>
+              </div>
+              <div className="col">
+                <div className="form-group">
+                  <label>Quantity</label>
+                  <Field
+                    component="input"
+                    name={`${item}.qty`}
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter Quantity"
+                    validate={[required]}
+                    format={formatNumberToString}
+                    parse={Number}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Description</label>
+              <Field
+                component="textarea"
+                name={`${item}.description`}
+                className="form-control"
+                placeholder="Enter Description"
+                validate={[required]}
+              />
+            </div>
+            {fields.length > 1 && (
+              <div
+                className="btn btn-danger"
+                onClick={() => fields.remove(index)}
+              >
+                Remove Item
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 };
 
@@ -76,7 +160,6 @@ const InvoicesForm = props => {
               name="dates.issued"
               className="form-control"
               placeholder="Select a date"
-              defaultValue={moment().format("YYYY-MM-DD")}
               validate={[required]}
             />
           </div>
@@ -89,9 +172,6 @@ const InvoicesForm = props => {
               name="dates.due"
               className="form-control"
               placeholder="Select a date"
-              defaultValue={moment()
-                .add(14, "days")
-                .format("YYYY-MM-DD")}
               validate={[required]}
             />
           </div>
@@ -105,14 +185,12 @@ const InvoicesForm = props => {
           className="form-control"
           placeholder="Enter downpayment made by client"
           validate={[required]}
-          format={number => {
-            return typeof number === "undefined" ? "" : String(number);
-          }}
+          format={formatNumberToString}
           parse={Number}
         />
       </div>
       <p className="lead">Fill your billing details: </p>
-
+      <FieldArray name="invoice.details" component={renderDetails} />
       <div className="float-right">
         <button type="submit" className="btn btn-primary">
           {isUpdating === -1 ? "Add Client" : "Update Client"}

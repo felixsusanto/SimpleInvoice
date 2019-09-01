@@ -6,7 +6,6 @@ import moment from "moment";
 import Modal from "components/Modal/Modal";
 import InvoicesForm from "./components/InvoicesForm";
 
-
 const Wrapper = styled.div`
   padding: 20px 0;
 `;
@@ -46,8 +45,12 @@ class Invoices extends React.PureComponent {
   };
 
   onCloseHandler = () => {
-    this.setState({modalOpen: false});
-  }
+    this.setState({ modalOpen: false });
+  };
+
+  formSubmitHandler = value => {
+    console.log(value);
+  };
 
   render() {
     return (
@@ -57,7 +60,7 @@ class Invoices extends React.PureComponent {
             <h3>
               <div
                 className="btn btn-primary float-right"
-                onClick={() => this.setState({modalOpen: true})}
+                onClick={() => this.setState({ modalOpen: true })}
               >
                 <i className="fas fa-plus fa-fw" /> Add Invoice
               </div>
@@ -68,13 +71,25 @@ class Invoices extends React.PureComponent {
             <ObjectTable data={[]} emptyComponent={<EmptyComponent />} />
           </div>
         </Wrapper>
-        {this.state.modalOpen &&
-          <Modal modalXl title="Add Invoice"
+        {this.state.modalOpen && (
+          <Modal
+            title="Add Invoice"
+            modalScrollable
             onCloseModal={this.onCloseHandler}
           >
-            <InvoicesForm />
+            <InvoicesForm
+              onSubmit={this.formSubmitHandler}
+              initialValues={{
+                dates: {
+                  issued: moment().format("YYYY-MM-DD"),
+                  due: moment()
+                    .add(14, "days")
+                    .format("YYYY-MM-DD")
+                }
+              }}
+            />
           </Modal>
-        }
+        )}
       </React.Fragment>
     );
   }
