@@ -1,9 +1,12 @@
+import stubs from "./stubs";
+
 const types = {
   ADD_CLIENT: "ADD_CLIENT",
   UPDATE_CLIENT: "UPDATE_CLIENT",
   REMOVE_CLIENT: "REMOVE_CLIENT"
 }
-const initState = [];
+
+const initState = stubs || [];
 
 const reducer = (state=initState, action) => {
   switch (action.type) {

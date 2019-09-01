@@ -18,11 +18,13 @@ const ModalWrapper = styled.div`
 `;
 
 const Modal = props => {
+  const { modalXl } = props;
+  const modalClass = modalXl ? "modal-xl" : "";
   return (
     <ModalWrapper>
       <div className="shroud" />
       <div className="modal" tabIndex="-1" role="dialog">
-        <div className="modal-dialog" role="document">
+        <div className={`modal-dialog ${modalClass}`} role="document">
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title">{props.title}</h5>
