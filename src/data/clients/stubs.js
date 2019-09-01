@@ -1,14 +1,14 @@
 export default [
   {
-    id: "123",
+    id: "client_000001",
     contactPerson: "Felix Susanto",
     country: "Singapore",
     companyName: "Onyx Island"
   },
   {
-    id: "321",
+    id: "client_000002",
     contactPerson: "Wedding Invite Tester",
-    companyName: "Onyx Island 2",
+    companyName: "Onyx Island",
     country: "Singapore"
   }
 ];

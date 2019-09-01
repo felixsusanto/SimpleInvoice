@@ -1,11 +1,15 @@
 import React from "react";
 import { Field, reduxForm } from "redux-form";
-const required = value =>
-  value || typeof value === "number" ? undefined : "Required";
+import { ConnectedAutoId } from "components/AutoIdSerial";
+import { required } from "utilities/utils";
+
 const ClientForm = props => {
-  const {isUpdating} = props;
+  const { isUpdating } = props;
   return (
     <form onSubmit={props.handleSubmit}>
+      {isUpdating === -1 && (
+        <Field name="id" component={ConnectedAutoId} prefix="client_" label="ID" />
+      )}
       <div className="form-group">
         <label>Contact Person</label>
         <Field
@@ -47,10 +51,10 @@ const ClientForm = props => {
       </div>
     </form>
   );
-}
+};
 ClientForm.defaultProps = {
   onAddClient: () => {}
-}
+};
 
 export default reduxForm({
   form: "ClientForm"
